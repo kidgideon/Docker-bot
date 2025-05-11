@@ -83,9 +83,8 @@ async function visitSite(site, visitNumber, send) {
     await browser.close();
   }
 }
-
-// === SSE endpoint to trigger bot runs ===
 app.get('/run-bots', async (req, res) => {
+  console.log('Request received to run bots');  // Log when request is received
   res.set({
     'Content-Type': 'text/event-stream',
     'Cache-Control': 'no-cache',
@@ -96,11 +95,8 @@ app.get('/run-bots', async (req, res) => {
 
   try {
     send(`🚀 Starting 100 visits per site...`);
-    console.log('Starting bot execution...');
-
     let visitCount = 1;
     for (let i = 1; i <= 100; i++) {
-      console.log(`Starting round ${i}`);
       await Promise.all(
         SITES.map(site =>
           visitSite(site, visitCount++, send)
@@ -108,11 +104,9 @@ app.get('/run-bots', async (req, res) => {
       );
       send(`📦 Round ${i} complete.`);
     }
-
     send(`✅ All 600 visits complete.`);
-    console.log('Bot completed all visits.');
   } catch (err) {
-    console.error('Error occurred during bot run:', err);  // Log detailed error message
+    console.error('Error occurred during bot run:', err);
     send(`❌ Error: ${err.message}`);
   } finally {
     res.end();
