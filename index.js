@@ -4,7 +4,7 @@ const cors = require('cors');
 
 const app = express();
 const corsOptions = {
-  origin: 'http://127.0.0.1:5500', // Allow requests only from this origin
+  origin: '*', // Allow requests only from this origin
   methods: ['GET', 'POST'],
   allowedHeaders: ['Content-Type'],
 };
@@ -91,34 +91,37 @@ async function visitSite(site, visitNumber, send) {
   }
 }
 app.get('/run-bots', async (req, res) => {
-  console.log('Request received to run bots');  // Log when request is received
-  res.set({
-    'Content-Type': 'text/event-stream',
-    'Cache-Control': 'no-cache',
-    'Connection': 'keep-alive'
-  });
+    console.log('Request received to run bots');
+    res.set({
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive'
+    });
 
-  const send = msg => res.write(`data: ${msg}\n\n`);
+    const send = msg => res.write(`data: ${msg}\n\n`);
 
-  try {
-    send(`🚀 Starting 100 visits per site...`);
-    let visitCount = 1;
-    for (let i = 1; i <= 100; i++) {
-      await Promise.all(
-        SITES.map(site =>
-          visitSite(site, visitCount++, send)
-        )
-      );
-      send(`📦 Round ${i} complete.`);
+    try {
+        send(`🚀 Starting 100 visits per site...`);
+        let visitCount = 1;
+
+        for (let i = 1; i <= 100; i++) {
+            await Promise.all(
+                SITES.map(site =>
+                    visitSite(site, visitCount++, send)
+                )
+            );
+            send(`📦 Round ${i} complete.`);
+        }
+
+        send(`✅ All 600 visits complete.`);
+    } catch (err) {
+        console.error('Error occurred during bot run:', err);
+        send(`❌ Error: ${err.message}`);
+    } finally {
+        res.end();
     }
-    send(`✅ All 600 visits complete.`);
-  } catch (err) {
-    console.error('Error occurred during bot run:', err);
-    send(`❌ Error: ${err.message}`);
-  } finally {
-    res.end();
-  }
 });
+
 
 
 app.listen(PORT, () => {
