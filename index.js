@@ -90,6 +90,7 @@ async function visitSite(site, visitNumber, send) {
     await browser.close();
   }
 }
+
 app.get('/run-bots', async (req, res) => {
     console.log('Request received to run bots');
     res.set({
@@ -98,21 +99,20 @@ app.get('/run-bots', async (req, res) => {
         'Connection': 'keep-alive'
     });
 
-    const send = msg => res.write(`data: ${msg}\n\n`);
+    const send = msg => {
+        console.log('Sending message:', msg);  // Log each message being sent to the client
+        res.write(`data: ${msg}\n\n`);
+    };
 
     try {
         send(`🚀 Starting 100 visits per site...`);
         let visitCount = 1;
-
         for (let i = 1; i <= 100; i++) {
             await Promise.all(
-                SITES.map(site =>
-                    visitSite(site, visitCount++, send)
-                )
+                SITES.map(site => visitSite(site, visitCount++, send))
             );
             send(`📦 Round ${i} complete.`);
         }
-
         send(`✅ All 600 visits complete.`);
     } catch (err) {
         console.error('Error occurred during bot run:', err);
@@ -121,6 +121,7 @@ app.get('/run-bots', async (req, res) => {
         res.end();
     }
 });
+
 
 
 
