@@ -3,7 +3,14 @@ const { chromium } = require('playwright');
 const cors = require('cors');
 
 const app = express();
-app.use(cors());
+const corsOptions = {
+  origin: 'http://127.0.0.1:5500', // Allow requests only from this origin
+  methods: ['GET', 'POST'],
+  allowedHeaders: ['Content-Type'],
+};
+
+// Apply the CORS options to your app
+app.use(cors(corsOptions));
 
 const PORT = 3000;
 
