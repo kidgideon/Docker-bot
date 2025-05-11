@@ -89,26 +89,36 @@ app.get('/run-bots', async (req, res) => {
   res.set({
     'Content-Type': 'text/event-stream',
     'Cache-Control': 'no-cache',
-    Connection: 'keep-alive'
+    'Connection': 'keep-alive'
   });
 
   const send = msg => res.write(`data: ${msg}\n\n`);
 
-  send(`🚀 Starting 100 visits per site...`);
+  try {
+    send(`🚀 Starting 100 visits per site...`);
+    console.log('Starting bot execution...');
 
-  let visitCount = 1;
-  for (let i = 1; i <= 100; i++) {
-    await Promise.all(
-      SITES.map(site =>
-        visitSite(site, visitCount++, send)
-      )
-    );
-    send(`📦 Round ${i} complete.`);
+    let visitCount = 1;
+    for (let i = 1; i <= 100; i++) {
+      console.log(`Starting round ${i}`);
+      await Promise.all(
+        SITES.map(site =>
+          visitSite(site, visitCount++, send)
+        )
+      );
+      send(`📦 Round ${i} complete.`);
+    }
+
+    send(`✅ All 600 visits complete.`);
+    console.log('Bot completed all visits.');
+  } catch (err) {
+    console.error('Error occurred during bot run:', err);  // Log detailed error message
+    send(`❌ Error: ${err.message}`);
+  } finally {
+    res.end();
   }
-
-  send(`✅ All 600 visits complete.`);
-  res.end();
 });
+
 
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
