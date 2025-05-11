@@ -10,6 +10,9 @@ COPY package.json ./
 # Install app dependencies
 RUN npm install
 
+# Install Playwright browsers
+RUN npx playwright install
+
 # Copy all files from your local project into the container
 COPY . .
 
