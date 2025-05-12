@@ -3,16 +3,14 @@ const { chromium } = require('playwright');
 const cors = require('cors');
 
 const app = express();
+const PORT = 3000;
+
 const corsOptions = {
-  origin: '*', // Allow requests only from this origin
-  methods: ['GET', 'POST'],
+  origin: '*',
+  methods: ['GET'],
   allowedHeaders: ['Content-Type'],
 };
-
-// Apply the CORS options to your app
 app.use(cors(corsOptions));
-
-const PORT = 3000;
 
 const userAgents = [
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
@@ -30,8 +28,6 @@ const userAgents = [
   'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:97.0) Gecko/20100101 Firefox/97.0'
 ];
 
-
-
 const screenSizes = [
   { width: 1920, height: 1080 },
   { width: 1366, height: 768 },
@@ -39,19 +35,17 @@ const screenSizes = [
   { width: 375, height: 667 }
 ];
 
-const SITES = [ 
-  'https://www.profitableratecpm.com/ecx2ujcjf?key=fe0ff3db8aade97613dae3ed6e1b24dc',
-  'https://www.profitableratecpm.com/mfym6sgtx?key=e8a24667eee54da01e68eaf507501749',
-  'https://www.profitableratecpm.com/ecx2ujcjf?key=fe0ff3db8aade97613dae3ed6e1b24dc',
- 'https://www.profitableratecpm.com/wqarcndcc?key=7316c0853e92a834ad3e44ea7c5d14e5',
- 'https://www.profitableratecpm.com/ju8qibav0?key=2e48d01322fa94671211becbd36ac554',
- 'https://www.profitableratecpm.com/na4zv93kc?key=532f2bed27c29be540f801eb37c0fe41',
- 'https://www.profitableratecpm.com/xx94cy19a?key=10c3e0d5c69fad15576ced560b53b44a'
+
+
+const SITES = [
+  'https://www.profitableratecpm.com/xx94cy19a?key=10c3e0d5c69fad15576ced560b53b44a',
+  'https://allowsalmond.com/updxhar2?key=ac1d36ce315f630b062f30e2fc532405',
+  'https://www.profitableratecpm.com/na4zv93kc?key=532f2bed27c29be540f801eb37c0fe41',
+  'https://www.profitableratecpm.com/kzqvknf2?key=836ebdefe253ae88ebfbd481d9b376ac'
 ];
 
-
-function getRandom(array) {
-  return array[Math.floor(Math.random() * array.length)];
+function getRandom(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
 }
 
 function wait(ms) {
@@ -60,12 +54,15 @@ function wait(ms) {
 
 async function simulateUserBehavior(page) {
   const scrollHeight = await page.evaluate(() => document.body.scrollHeight);
-  const scrollSteps = 3;
+  const scrollSteps = Math.floor(Math.random() * 5) + 3;
 
   for (let i = 0; i < scrollSteps; i++) {
     await page.mouse.wheel(0, scrollHeight / scrollSteps);
-    await wait(Math.random() * 300 + 300); // faster idle time
+    await wait(Math.random() * 1200 + 800); // slower scrolls
   }
+
+  const idle = Math.random() * 8000 + 7000; // 7s to 15s idle
+  await wait(idle);
 }
 
 async function visitSite(site, visitNumber, send) {
@@ -74,64 +71,57 @@ async function visitSite(site, visitNumber, send) {
 
   const browser = await chromium.launch({ headless: true });
   const context = await browser.newContext({
-    viewport,
     userAgent: ua,
+    viewport,
     locale: 'en-US',
-    ignoreHTTPSErrors: true
+    ignoreHTTPSErrors: true,
   });
 
   const page = await context.newPage();
 
   try {
-    await page.goto(site, { waitUntil: 'domcontentloaded', timeout: 15000 });
+    await page.goto(site, { waitUntil: 'domcontentloaded', timeout: 20000 });
     await simulateUserBehavior(page);
-    send(`✅ Visit #${visitNumber} successful on ${site}`);
+    send(`✅ Visit #${visitNumber} to ${site} done`);
   } catch (err) {
-    send(`❌ Visit #${visitNumber} failed on ${site} | ${err.message}`);
+    send(`❌ Visit #${visitNumber} to ${site} failed | ${err.message}`);
   } finally {
     await browser.close();
   }
 }
+
 app.get('/run-bots', async (req, res) => {
-  console.log('Request received to run bots');
   res.set({
     'Content-Type': 'text/event-stream',
     'Cache-Control': 'no-cache',
-    'Connection': 'keep-alive'
+    Connection: 'keep-alive',
   });
 
-  const send = msg => {
-    console.log('Sending message:', msg);
-    res.write(`data: ${msg}\n\n`);
-  };
-
-  async function runVisitsForSite(site, totalVisits) {
-    for (let i = 1; i <= totalVisits; i++) {
-      await visitSite(site, i, send);
-      await wait(500); // throttle a bit to reduce CPU/memory spikes
-    }
-  }
+  const send = (msg) => res.write(`data: ${msg}\n\n`);
 
   try {
-    send(`🚀 Starting 10 visits per site...`);
+    send(`🚀 Starting visits (10 per site)...`);
 
     for (let i = 0; i < SITES.length; i++) {
       const site = SITES[i];
-      send(`➡️ Starting site ${i + 1}/${SITES.length}: ${site}`);
-      await runVisitsForSite(site, 10);
-      send(`✅ Finished site ${i + 1}: ${site}`);
+      send(`➡️ Site ${i + 1}/${SITES.length}: ${site}`);
+
+      for (let j = 1; j <= 10; j++) {
+        await visitSite(site, j, send);
+        await wait(1000); // slight pause to reduce memory pressure
+      }
+
+      send(`✅ Finished all 10 visits for: ${site}`);
     }
 
-    send(`🎉 All site visits complete.`);
+    send(`🎉 All visits complete.`);
   } catch (err) {
-    console.error('Error occurred during bot run:', err);
-    send(`❌ Error: ${err.message}`);
+    send(`❌ Fatal error: ${err.message}`);
   } finally {
     res.end();
   }
 });
 
-
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`🔥 Server running on port ${PORT}`);
 });
