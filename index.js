@@ -113,12 +113,12 @@ app.get('/run-bots', async (req, res) => {
   }
 
   try {
-    send(`🚀 Starting 20 visits per site...`);
+    send(`🚀 Starting 10 visits per site...`);
 
     for (let i = 0; i < SITES.length; i++) {
       const site = SITES[i];
       send(`➡️ Starting site ${i + 1}/${SITES.length}: ${site}`);
-      await runVisitsForSite(site, 20);
+      await runVisitsForSite(site, 10);
       send(`✅ Finished site ${i + 1}: ${site}`);
     }
 
@@ -130,10 +130,6 @@ app.get('/run-bots', async (req, res) => {
     res.end();
   }
 });
-
-
-
-
 
 
 app.listen(PORT, () => {
