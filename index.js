@@ -113,14 +113,14 @@ app.get('/run-bots', async (req, res) => {
 
   for (let i = 0; i < SITES.length; i++) {
     const site = SITES[i];
-    send(`➡️ Site ${i + 1}/${SITES.length}: ${site}`);
+    send(`➡️ Site ${i + 1}/${SITES.length}`);
 
     for (let j = 1; j <= 3; j++) {
       await visitSite(site, j, send);
       await wait(1000); // Delay to reduce pressure
     }
 
-    send(`✅ Finished all 3 visits for: ${site}`);
+    send(`✅ Finished all 3 visits`);
   }
 
   send(`🎉 All visits complete.`);
