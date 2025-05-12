@@ -1,3 +1,13 @@
+// GLOBAL ERROR HANDLERS — place at the very top of the file!
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection:', reason);
+  // Optionally: log or send notification here
+});
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught Exception:', err);
+  // Optionally: log or send notification here
+});
+
 const express = require('express');
 const { chromium } = require('playwright');
 const cors = require('cors');
@@ -14,12 +24,10 @@ app.use(cors(corsOptions));
 
 const userAgents = [
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
-  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Safari/605.1.15',
+  'Mozilla/5Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Safari/605.1.15',
   'Mozilla/5.0 (Linux; Android 10; SM-G973F) AppleWebKit/537.36 Chrome/119.0.0.0 Mobile Safari/537.36',
   'Mozilla/5.0 (iPhone; CPU iPhone OS 16_3 like Mac OS X) AppleWebKit/605.1.15 Version/16.0 Mobile Safari/604.1',
-  'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 Chrome/118.0.0.0 Safari/537.36 Edg/118.0.2088.76',
-  'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-  'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Firefox/118.0',
+  'Mozilla/5.0 (Kit/537.36 (KHTML, like Gecko) Firefox/118.0',
   'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_2_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
   'Mozilla/5.0 (Linux; Android 11; Pixel 4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36',
   'Mozilla/5.0 (iPad; CPU OS 15_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.0 Mobile Safari/604.1',
@@ -40,8 +48,7 @@ const SITES = [
   'https://allowsalmond.com/updxhar2?key=ac1d36ce315f630b062f30e2fc532405',
   'https://www.profitableratecpm.com/na4zv93kc?key=532f2bed27c29be540f801eb37c0fe41',
   'https://www.profitableratecpm.com/kzqvknf2?key=836ebdefe253ae88ebfbd481d9b376ac',
-
-'https://allowsalmond.com/befpjq8qck?key=70cc3c742709496daf9263a08da15368'
+  'https://allowsalmond.com/befpjq8qck?key=70cc3c742709496daf9263a08da15368'
 ];
 
 function getRandom(arr) {
@@ -66,8 +73,7 @@ async function simulateUserBehavior(page) {
 }
 
 async function visitSite(site, visitNumber, send) {
-  let browser; // Move outside try so we can always close it
-
+  let browser;
   try {
     const ua = getRandom(userAgents);
     const viewport = getRandom(screenSizes);
@@ -99,34 +105,38 @@ async function visitSite(site, visitNumber, send) {
   }
 }
 
-
+// EXPRESS HANDLER WITH TRY/CATCH
 app.get('/run-bots', async (req, res) => {
-  res.set({
-    'Content-Type': 'text/event-stream',
-    'Cache-Control': 'no-cache',
-    Connection: 'keep-alive',
-  });
+  try {
+    res.set({
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      Connection: 'keep-alive',
+    });
 
-  const send = (msg) => res.write(`data: ${msg}\n\n`);
+    const send = (msg) => res.write(`data: ${msg}\n\n`);
 
-  send(`🚀 Starting visits (5 per site)...`);
+    send(`🚀 Starting visits (5 per site)...`);
 
-  for (let i = 0; i < SITES.length; i++) {
-    const site = SITES[i];
-    send(`➡️ Site ${i + 1}/${SITES.length}`);
+    for (let i = 0; i < SITES.length; i++) {
+      const site = SITES[i];
+      send(`➡️ Site ${i + 1}/${SITES.length}`);
 
-    for (let j = 1; j <= 5; j++) {
-      await visitSite(site, j, send);
-      await wait(1000); // Delay to reduce pressure
+      for (let j = 1; j <= 5; j++) {
+        await visitSite(site, j, send);
+        await wait(1000); // Delay to reduce pressure
+      }
+
+      send(`✅ Finished all 5 visits`);
     }
 
-    send(`✅ Finished all 5 visits`);
+    send(`🎉 All visits complete.`);
+    res.end();
+  } catch (err) {
+    res.write(`data: ❌ Fatal error in bot runner | ${err.message}\n\n`);
+    res.end();
   }
-
-  send(`🎉 All visits complete.`);
-  res.end(); // Stream close after successful run
 });
-
 
 app.listen(PORT, () => {
   console.log(`🔥 Server running on port ${PORT}`);
