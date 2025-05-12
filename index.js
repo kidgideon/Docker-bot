@@ -113,7 +113,7 @@ app.get('/run-bots', async (req, res) => {
     const site = SITES[i];
     send(`➡️ Site ${i + 1}/${SITES.length}: ${site}`);
 
-    for (let j = 1; j <= 10; j++) {
+    for (let j = 1; j <= 3; j++) {
       await visitSite(site, j, send);
       await wait(1000); // Delay to reduce pressure
     }
