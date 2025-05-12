@@ -39,14 +39,16 @@ const screenSizes = [
   { width: 375, height: 667 }
 ];
 
-const SITES = [
-  'https://coolmovies.vercel.app',
-  'https://apexflick.com',
-  'https://news-m.vercel.app',
-  'https://greenlove-pink.vercel.app',
-  'https://soccer-delta.vercel.app',
-  'https://www.campusicon.ng'
+const SITES = [ 
+  'https://www.profitableratecpm.com/ecx2ujcjf?key=fe0ff3db8aade97613dae3ed6e1b24dc',
+  'https://www.profitableratecpm.com/mfym6sgtx?key=e8a24667eee54da01e68eaf507501749',
+  'https://www.profitableratecpm.com/ecx2ujcjf?key=fe0ff3db8aade97613dae3ed6e1b24dc',
+ 'https://www.profitableratecpm.com/wqarcndcc?key=7316c0853e92a834ad3e44ea7c5d14e5',
+ 'https://www.profitableratecpm.com/ju8qibav0?key=2e48d01322fa94671211becbd36ac554',
+ 'https://www.profitableratecpm.com/na4zv93kc?key=532f2bed27c29be540f801eb37c0fe41',
+ 'https://www.profitableratecpm.com/xx94cy19a?key=10c3e0d5c69fad15576ced560b53b44a'
 ];
+
 
 function getRandom(array) {
   return array[Math.floor(Math.random() * array.length)];
@@ -90,7 +92,6 @@ async function visitSite(site, visitNumber, send) {
     await browser.close();
   }
 }
-
 app.get('/run-bots', async (req, res) => {
     console.log('Request received to run bots');
     res.set({
@@ -100,20 +101,22 @@ app.get('/run-bots', async (req, res) => {
     });
 
     const send = msg => {
-        console.log('Sending message:', msg);  // Log each message being sent to the client
+        console.log('Sending message:', msg);
         res.write(`data: ${msg}\n\n`);
     };
 
     try {
-        send(`🚀 Starting 100 visits per site...`);
-        let visitCount = 1;
-        for (let i = 1; i <= 100; i++) {
+        send(`🚀 Starting 10 visits per site...`);
+
+        const totalRounds = 10; // Exactly 10 visits per site
+        for (let i = 1; i <= totalRounds; i++) {
             await Promise.all(
-                SITES.map(site => visitSite(site, visitCount++, send))
+                SITES.map((site, index) => visitSite(site, i, send))
             );
             send(`📦 Round ${i} complete.`);
         }
-        send(`✅ All 600 visits complete.`);
+
+        send(`✅ All visits complete (10 per site).`);
     } catch (err) {
         console.error('Error occurred during bot run:', err);
         send(`❌ Error: ${err.message}`);
@@ -121,6 +124,7 @@ app.get('/run-bots', async (req, res) => {
         res.end();
     }
 });
+
 
 
 
