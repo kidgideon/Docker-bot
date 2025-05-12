@@ -85,7 +85,7 @@ async function visitSite(site, visitNumber, send) {
 
     await page.goto(site, { waitUntil: 'domcontentloaded', timeout: 20000 });
     await simulateUserBehavior(page);
-    send(`✅ Visit #${visitNumber} to ${site} done`);
+    send(`✅ Visit #${visitNumber} done`);
   } catch (err) {
     send(`❌ Visit #${visitNumber} to ${site} failed | ${err.message}`);
   } finally {
@@ -109,7 +109,7 @@ app.get('/run-bots', async (req, res) => {
 
   const send = (msg) => res.write(`data: ${msg}\n\n`);
 
-  send(`🚀 Starting visits (3 per site)...`);
+  send(`🚀 Starting visits (5 per site)...`);
 
   for (let i = 0; i < SITES.length; i++) {
     const site = SITES[i];
