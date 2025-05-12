@@ -93,37 +93,44 @@ async function visitSite(site, visitNumber, send) {
   }
 }
 app.get('/run-bots', async (req, res) => {
-    console.log('Request received to run bots');
-    res.set({
-        'Content-Type': 'text/event-stream',
-        'Cache-Control': 'no-cache',
-        'Connection': 'keep-alive'
-    });
+  console.log('Request received to run bots');
+  res.set({
+    'Content-Type': 'text/event-stream',
+    'Cache-Control': 'no-cache',
+    'Connection': 'keep-alive'
+  });
 
-    const send = msg => {
-        console.log('Sending message:', msg);
-        res.write(`data: ${msg}\n\n`);
-    };
+  const send = msg => {
+    console.log('Sending message:', msg);
+    res.write(`data: ${msg}\n\n`);
+  };
 
-    try {
-        send(`🚀 Starting 10 visits per site...`);
-
-        const totalRounds = 10; // Exactly 10 visits per site
-        for (let i = 1; i <= totalRounds; i++) {
-            await Promise.all(
-                SITES.map((site, index) => visitSite(site, i, send))
-            );
-            send(`📦 Round ${i} complete.`);
-        }
-
-        send(`✅ All visits complete (10 per site).`);
-    } catch (err) {
-        console.error('Error occurred during bot run:', err);
-        send(`❌ Error: ${err.message}`);
-    } finally {
-        res.end();
+  async function runVisitsForSite(site, totalVisits) {
+    for (let i = 1; i <= totalVisits; i++) {
+      await visitSite(site, i, send);
+      await wait(500); // throttle a bit to reduce CPU/memory spikes
     }
+  }
+
+  try {
+    send(`🚀 Starting 20 visits per site...`);
+
+    for (let i = 0; i < SITES.length; i++) {
+      const site = SITES[i];
+      send(`➡️ Starting site ${i + 1}/${SITES.length}: ${site}`);
+      await runVisitsForSite(site, 20);
+      send(`✅ Finished site ${i + 1}: ${site}`);
+    }
+
+    send(`🎉 All site visits complete.`);
+  } catch (err) {
+    console.error('Error occurred during bot run:', err);
+    send(`❌ Error: ${err.message}`);
+  } finally {
+    res.end();
+  }
 });
+
 
 
 
