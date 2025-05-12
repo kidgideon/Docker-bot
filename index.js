@@ -109,7 +109,7 @@ app.get('/run-bots', async (req, res) => {
 
   const send = (msg) => res.write(`data: ${msg}\n\n`);
 
-  send(`🚀 Starting visits (10 per site)...`);
+  send(`🚀 Starting visits (3 per site)...`);
 
   for (let i = 0; i < SITES.length; i++) {
     const site = SITES[i];
@@ -120,7 +120,7 @@ app.get('/run-bots', async (req, res) => {
       await wait(1000); // Delay to reduce pressure
     }
 
-    send(`✅ Finished all 10 visits for: ${site}`);
+    send(`✅ Finished all 3 visits for: ${site}`);
   }
 
   send(`🎉 All visits complete.`);
