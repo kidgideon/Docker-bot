@@ -35,8 +35,6 @@ const screenSizes = [
   { width: 375, height: 667 }
 ];
 
-
-
 const SITES = [
   'https://www.profitableratecpm.com/xx94cy19a?key=10c3e0d5c69fad15576ced560b53b44a',
   'https://allowsalmond.com/updxhar2?key=ac1d36ce315f630b062f30e2fc532405',
@@ -107,7 +105,12 @@ app.get('/run-bots', async (req, res) => {
       send(`➡️ Site ${i + 1}/${SITES.length}: ${site}`);
 
       for (let j = 1; j <= 10; j++) {
-        await visitSite(site, j, send);
+        try {
+          // Visit site and handle potential errors per visit
+          await visitSite(site, j, send);
+        } catch (err) {
+          send(`❌ Error during visit #${j} to ${site}: ${err.message}`);
+        }
         await wait(1000); // slight pause to reduce memory pressure
       }
 
