@@ -61,7 +61,7 @@ async function simulateUserBehavior(page) {
     await wait(Math.random() * 1200 + 800); // slower scrolls
   }
 
-  const idle = Math.random() * 8000 + 7000; // 7s to 15s idle
+  const idle = Math.random() * 2000 + 2000; // 2 to 4s idle
   await wait(idle);
 }
 
@@ -115,12 +115,12 @@ app.get('/run-bots', async (req, res) => {
     const site = SITES[i];
     send(`➡️ Site ${i + 1}/${SITES.length}`);
 
-    for (let j = 1; j <= 3; j++) {
+    for (let j = 1; j <= 5; j++) {
       await visitSite(site, j, send);
       await wait(1000); // Delay to reduce pressure
     }
 
-    send(`✅ Finished all 3 visits`);
+    send(`✅ Finished all 5 visits`);
   }
 
   send(`🎉 All visits complete.`);
