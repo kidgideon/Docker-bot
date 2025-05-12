@@ -64,29 +64,39 @@ async function simulateUserBehavior(page) {
 }
 
 async function visitSite(site, visitNumber, send) {
-  const ua = getRandom(userAgents);
-  const viewport = getRandom(screenSizes);
-
-  const browser = await chromium.launch({ headless: true });
-  const context = await browser.newContext({
-    userAgent: ua,
-    viewport,
-    locale: 'en-US',
-    ignoreHTTPSErrors: true,
-  });
-
-  const page = await context.newPage();
+  let browser; // Move outside try so we can always close it
 
   try {
+    const ua = getRandom(userAgents);
+    const viewport = getRandom(screenSizes);
+
+    browser = await chromium.launch({ headless: true });
+
+    const context = await browser.newContext({
+      userAgent: ua,
+      viewport,
+      locale: 'en-US',
+      ignoreHTTPSErrors: true,
+    });
+
+    const page = await context.newPage();
+
     await page.goto(site, { waitUntil: 'domcontentloaded', timeout: 20000 });
     await simulateUserBehavior(page);
     send(`✅ Visit #${visitNumber} to ${site} done`);
   } catch (err) {
     send(`❌ Visit #${visitNumber} to ${site} failed | ${err.message}`);
   } finally {
-    await browser.close();
+    if (browser) {
+      try {
+        await browser.close();
+      } catch (closeErr) {
+        send(`⚠️ Warning: Error closing browser | ${closeErr.message}`);
+      }
+    }
   }
 }
+
 
 app.get('/run-bots', async (req, res) => {
   res.set({
@@ -97,33 +107,24 @@ app.get('/run-bots', async (req, res) => {
 
   const send = (msg) => res.write(`data: ${msg}\n\n`);
 
-  try {
-    send(`🚀 Starting visits (10 per site)...`);
+  send(`🚀 Starting visits (10 per site)...`);
 
-    for (let i = 0; i < SITES.length; i++) {
-      const site = SITES[i];
-      send(`➡️ Site ${i + 1}/${SITES.length}: ${site}`);
+  for (let i = 0; i < SITES.length; i++) {
+    const site = SITES[i];
+    send(`➡️ Site ${i + 1}/${SITES.length}: ${site}`);
 
-      for (let j = 1; j <= 10; j++) {
-        try {
-          // Visit site and handle potential errors per visit
-          await visitSite(site, j, send);
-        } catch (err) {
-          send(`❌ Error during visit #${j} to ${site}: ${err.message}`);
-        }
-        await wait(1000); // slight pause to reduce memory pressure
-      }
-
-      send(`✅ Finished all 10 visits for: ${site}`);
+    for (let j = 1; j <= 10; j++) {
+      await visitSite(site, j, send);
+      await wait(1000); // Delay to reduce pressure
     }
 
-    send(`🎉 All visits complete.`);
-  } catch (err) {
-    send(`❌ Fatal error: ${err.message}`);
-  } finally {
-    res.end();
+    send(`✅ Finished all 10 visits for: ${site}`);
   }
+
+  send(`🎉 All visits complete.`);
+  res.end(); // Stream close after successful run
 });
+
 
 app.listen(PORT, () => {
   console.log(`🔥 Server running on port ${PORT}`);
