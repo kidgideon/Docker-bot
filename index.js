@@ -48,7 +48,9 @@ const SITES = [
   'https://allowsalmond.com/updxhar2?key=ac1d36ce315f630b062f30e2fc532405',
   'https://www.profitableratecpm.com/na4zv93kc?key=532f2bed27c29be540f801eb37c0fe41',
   'https://www.profitableratecpm.com/kzqvknf2?key=836ebdefe253ae88ebfbd481d9b376ac',
-  'https://allowsalmond.com/befpjq8qck?key=70cc3c742709496daf9263a08da15368'
+  'https://allowsalmond.com/befpjq8qck?key=70cc3c742709496daf9263a08da15368',
+
+'https://allowsalmond.com/ukr2rva6?key=00aac82ff5f6bc7020eaef343a85055d'
 ];
 
 function getRandom(arr) {
@@ -93,7 +95,7 @@ async function visitSite(site, visitNumber, send) {
     await simulateUserBehavior(page);
     send(`✅ Visit #${visitNumber} done`);
   } catch (err) {
-    send(`❌ Visit #${visitNumber} to ${site} failed | ${err.message}`);
+    send(`❌ Visit #${visitNumber} failed | ${err.message}`);
   } finally {
     if (browser) {
       try {
@@ -116,18 +118,18 @@ app.get('/run-bots', async (req, res) => {
 
     const send = (msg) => res.write(`data: ${msg}\n\n`);
 
-    send(`🚀 Starting visits (5 per site)...`);
+    send(`🚀 Starting visits (3 per site)...`);
 
     for (let i = 0; i < SITES.length; i++) {
       const site = SITES[i];
       send(`➡️ Site ${i + 1}/${SITES.length}`);
 
-      for (let j = 1; j <= 5; j++) {
+      for (let j = 1; j <= 3; j++) {
         await visitSite(site, j, send);
         await wait(1000); // Delay to reduce pressure
       }
 
-      send(`✅ Finished all 5 visits`);
+      send(`✅ Finished all 3 visits`);
     }
 
     send(`🎉 All visits complete.`);
