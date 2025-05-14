@@ -62,15 +62,17 @@ function wait(ms) {
 }
 
 async function simulateUserBehavior(page) {
+  // Only 1 or 2 scrolls
   const scrollHeight = await page.evaluate(() => document.body.scrollHeight);
-  const scrollSteps = Math.floor(Math.random() * 5) + 3;
+  const scrollSteps = Math.floor(Math.random() * 2) + 1; // 1 or 2
 
   for (let i = 0; i < scrollSteps; i++) {
     await page.mouse.wheel(0, scrollHeight / scrollSteps);
-    await wait(Math.random() * 1200 + 800); // slower scrolls
+    await wait(Math.random() * 500 + 500); // 0.5 to 1 second per scroll
   }
 
-  const idle = Math.random() * 2000 + 2000; // 2 to 4s idle
+  // Idle time max 2 seconds (0.5 to 2.0s random)
+  const idle = Math.random() * 1500 + 500;
   await wait(idle);
 }
 
