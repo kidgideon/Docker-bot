@@ -44,13 +44,12 @@ const screenSizes = [
 ];
 
 const SITES = [
-  'https://www.profitableratecpm.com/xx94cy19a?key=10c3e0d5c69fad15576ced560b53b44a',
-  'https://allowsalmond.com/updxhar2?key=ac1d36ce315f630b062f30e2fc532405',
-  'https://www.profitableratecpm.com/na4zv93kc?key=532f2bed27c29be540f801eb37c0fe41',
-  'https://www.profitableratecpm.com/kzqvknf2?key=836ebdefe253ae88ebfbd481d9b376ac',
-  'https://allowsalmond.com/befpjq8qck?key=70cc3c742709496daf9263a08da15368',
-
-'https://allowsalmond.com/ukr2rva6?key=00aac82ff5f6bc7020eaef343a85055d'
+ 'https://www.apexflick.com',
+ 'https://www.apexflick.com',
+ 'https://www.apexflick.com',
+ 'https://www.apexflick.com',
+ 'https://www.apexflick.com',
+ 'https://www.apexflick.com'
 ];
 
 function getRandom(arr) {
