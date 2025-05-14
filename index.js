@@ -118,13 +118,13 @@ app.get('/run-bots', async (req, res) => {
 
     const send = (msg) => res.write(`data: ${msg}\n\n`);
 
-    send(`🚀 Starting visits (2 per site)...`);
+    send(`🚀 Starting visits (5 per site)...`);
 
     for (let i = 0; i < SITES.length; i++) {
       const site = SITES[i];
       send(`➡️ Site ${i + 1}/${SITES.length}`);
 
-      for (let j = 1; j <= 2; j++) {
+      for (let j = 1; j <= 5; j++) {
         await visitSite(site, j, send);
         await wait(1000); // Delay to reduce pressure
       }
