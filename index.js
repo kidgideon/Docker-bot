@@ -49,6 +49,7 @@ const SITES = [
  'https://www.apexflick.com',
  'https://www.apexflick.com',
  'https://www.apexflick.com',
+ 'https://www.apexflick.com',
  'https://www.apexflick.com'
 ];
 
